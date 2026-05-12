@@ -1,167 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nairobi Vegetation Loss Map</title>
 
-  <!-- Leaflet CSS -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:#111;
+      color:white;
     }
 
-    body {
-      background: #111;
-      color: white;
+    h1{
+      text-align:center;
+      background:#1b1b1b;
+      color:#7CFC00;
+      padding:15px;
+      margin:0;
     }
 
-    h1 {
-      text-align: center;
-      padding: 15px;
-      background: #1b1b1b;
-      color: #7CFC00;
-      font-size: 28px;
-      letter-spacing: 1px;
+    #map{
+      height:90vh;
+      width:100%;
     }
 
-    #map {
-      width: 100%;
-      height: 90vh;
+    .legend{
+      background:white;
+      padding:10px;
+      border-radius:8px;
+      color:black;
+      line-height:20px;
     }
 
-    .legend {
-      background: white;
-      padding: 10px;
-      line-height: 18px;
-      color: #333;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    }
-
-    .legend i {
-      width: 18px;
-      height: 18px;
-      float: left;
-      margin-right: 8px;
-      opacity: 0.8;
+    .legend i{
+      width:18px;
+      height:18px;
+      float:left;
+      margin-right:8px;
+      opacity:0.7;
     }
   </style>
 </head>
 
 <body>
 
-  <h1>Vegetation Loss in Nairobi</h1>
+<h1>Vegetation Loss in Nairobi</h1>
 
-  <div id="map"></div>
+<div id="map"></div>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-  <script>
-    // Initialize map centered on Nairobi
-    const map = L.map('map').setView([-1.286389, 36.817223], 11);
+<script>
 
-    // OpenStreetMap Layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+const map = L.map('map').setView([-1.286389, 36.817223], 12.5);
 
-    // Simulated vegetation loss regions
-    const vegetationLossAreas = [
-      {
-        name: "Karura Forest Edge",
-        coords: [
-          [-1.245, 36.82],
-          [-1.255, 36.84],
-          [-1.27, 36.83],
-          [-1.26, 36.80]
-        ],
-        level: "High"
-      },
-      {
-        name: "Ngong Road Expansion",
-        coords: [
-          [-1.31, 36.75],
-          [-1.32, 36.78],
-          [-1.34, 36.77],
-          [-1.33, 36.74]
-        ],
-        level: "Medium"
-      },
-      {
-        name: "Embakasi Development Zone",
-        coords: [
-          [-1.32, 36.91],
-          [-1.34, 36.93],
-          [-1.36, 36.91],
-          [-1.35, 36.88]
-        ],
-        level: "Severe"
-      }
-    ];
+const bounds = [
+  [-1.45, 36.65],
+  [-1.15, 37.05]
+];
 
-    // Color function
-    function getColor(level) {
-      switch(level) {
-        case "Severe":
-          return "#ff0000";
-        case "High":
-          return "#ff6600";
-        case "Medium":
-          return "#ffcc00";
-        default:
-          return "#00ff00";
-      }
-    }
+map.setMaxBounds(bounds);
 
-    // Add polygons
-    vegetationLossAreas.forEach(area => {
-      L.polygon(area.coords, {
-        color: getColor(area.level),
-        fillColor: getColor(area.level),
-        fillOpacity: 0.5,
-        weight: 2
-      })
-      .addTo(map)
-      .bindPopup(`
-        <b>${area.name}</b><br>
-        Vegetation Loss Level: <b>${area.level}</b>
-      `);
-    });
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'&copy; OpenStreetMap contributors'
+}).addTo(map);
 
-    // Legend
-    const legend = L.control({ position: "bottomright" });
+const areas = [
+{
+  name:"Karura Forest Edge",
+  level:"High",
+  color:"#ff6600",
+  coords:[
+    [-1.245,36.82],
+    [-1.255,36.84],
+    [-1.27,36.83],
+    [-1.26,36.80]
+  ]
+},
+{
+  name:"Ngong Road Expansion",
+  level:"Medium",
+  color:"#ffcc00",
+  coords:[
+    [-1.31,36.75],
+    [-1.32,36.78],
+    [-1.34,36.77],
+    [-1.33,36.74]
+  ]
+},
+{
+  name:"Embakasi Development Zone",
+  level:"Severe",
+  color:"#ff0000",
+  coords:[
+    [-1.32,36.91],
+    [-1.34,36.93],
+    [-1.36,36.91],
+    [-1.35,36.88]
+  ]
+}
+];
 
-    legend.onAdd = function () {
-      const div = L.DomUtil.create("div", "legend");
+areas.forEach(area=>{
+  L.polygon(area.coords,{
+    color:area.color,
+    fillColor:area.color,
+    fillOpacity:0.5,
+    weight:2
+  })
+  .addTo(map)
+  .bindPopup(
+    `<b>${area.name}</b><br>Vegetation Loss: ${area.level}`
+  );
+});
 
-      div.innerHTML += "<h4>Vegetation Loss</h4>";
+const legend = L.control({position:'bottomright'});
 
-      const levels = [
-        { color: "#ff0000", text: "Severe" },
-        { color: "#ff6600", text: "High" },
-        { color: "#ffcc00", text: "Medium" }
-      ];
+legend.onAdd = function(){
+  const div = L.DomUtil.create('div','legend');
 
-      levels.forEach(item => {
-        div.innerHTML +=
-          `<i style="background:${item.color}"></i>${item.text}<br>`;
-      });
+  div.innerHTML = `
+    <h4>Vegetation Loss</h4>
+    <i style="background:#ff0000"></i> Severe<br>
+    <i style="background:#ff6600"></i> High<br>
+    <i style="background:#ffcc00"></i> Medium
+  `;
 
-      return div;
-    };
+  return div;
+};
 
-    legend.addTo(map);
-  </script>
+legend.addTo(map);
+
+</script>
 
 </body>
 </html>
