@@ -68,12 +68,13 @@
 
 <h1>Vegetation Loss in Nairobi</h1>
 
-<button id="downloadBtn">Download Map</button>
+<button id="downloadBtn">Download PDF</button>
 
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 
@@ -134,9 +135,7 @@ areas.forEach(area=>{
     weight:2
   })
   .addTo(map)
-  .bindPopup(
-    `<b>${area.name}</b><br>Vegetation Loss: ${area.level}`
-  );
+  .bindPopup(`<b>${area.name}</b><br>Vegetation Loss: ${area.level}`);
 });
 
 const legend = L.control({position:'bottomright'});
@@ -156,15 +155,25 @@ legend.onAdd = function(){
 
 legend.addTo(map);
 
-// ---------------- DOWNLOAD FEATURE ----------------
-document.getElementById("downloadBtn").addEventListener("click", function () {
+// ---------------- PDF DOWNLOAD ----------------
+document.getElementById("downloadBtn").addEventListener("click", async function () {
 
-  html2canvas(document.getElementById("map")).then(canvas => {
+  const { jsPDF } = window.jspdf;
 
-    const link = document.createElement("a");
-    link.download = "nairobi_vegetation_loss_map.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+  html2canvas(document.getElementById("map"), {
+    scale: 2   // 🔥 higher quality export
+  }).then(canvas => {
+
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("landscape", "mm", "a4");
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
+
+    pdf.save("nairobi_vegetation_loss_map.pdf");
 
   });
 
